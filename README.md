@@ -38,6 +38,44 @@ performance (higher sensitivity, lower noise, larger dynamic range, longer expos
 
 ### On Client Computer
 
+#### Development Environment
+You will need this setup when you want to
+- change the source code or
+- compile the code by yourself or
+- execute the latest Python source code.
+
+I use the Miniconda distribution on 64bit Windows (https://docs.conda.io/en/latest/miniconda.html)
+because it makes less trouble with incompatible packages.
+Any other Python3 installation will likely also work but needs installation commands to be modified.
+
+Do the following steps:
+1. Install Miniconda.
+2. Setup an isolated environment `HubblePi` and install required libraries:
+   ```
+   conda env create -f environment.yml
+   ```
+   (Conda will ask if you want to proceed installation. Answer with "y".)
+3. Change to `HubblePi` environment (if not already done) with `conda ativate HubblePi`
+   and install `HubblePi` library:
+   ```
+   pip install -e .
+   ```
+
+After that you have will have the `HubblePi_Capture`, `HubblePi_Viewer` and `HubblePi_RPi2Fits` commands available
+in the `HubblePi` environment.
+
+#### Precompiled Software
+TODO 
+
+## Usage
+
+1. Remote login on your Raspberry Pi and start the camera server:
 ```
-pip install -e .
+cd HubblePi
+python3 HubblePi_Camera.py -v debug
 ```
+2. Start `HubblePi_Capture` on your client computer, connect to your Raspberry Pi (you will need its network name
+   for that), adjust camera settings and take pictures.
+   
+Please see Wiki (TODO) for further documentation.
+

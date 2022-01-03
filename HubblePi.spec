@@ -1,22 +1,35 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import re, os
+import PyInstaller
+import shutil
 
 block_cipher = None
+
+################################################
+# For any reason PyInstaller does not find the MKL DLLs.
+# Workaround stolen from:
+# https://stackoverflow.com/questions/35478526/pyinstaller-numpy-intel-mkl-fatal-error-cannot-load-mkl-intel-thread-dll
+
+mkldir = os.path.join(PyInstaller.compat.base_prefix, "Library", "bin")
+mkl_binaries = [(os.path.join(mkldir, mkl), '.') for mkl in os.listdir(mkldir) if mkl.startswith('mkl_')]
 
 ################################################
 ### HubblePi_Capture
 
 Preset_files = []
-for FileName in os.listdir('HubblePi\\capture\\presets'):
+Preset_SrcFolder = 'HubblePi\\capture\\presets'
+for FileName in os.listdir(Preset_SrcFolder):
     if re.match("^.+\.set$", FileName):
-        Preset_files.append(("presets/"+FileName, 'presets'))
+        Preset_files.append((os.path.join(Preset_SrcFolder, FileName), 'presets'))
 
 Capture_a = Analysis(['HubblePi\\capture\\HubblePi_Capture.py'],
              pathex=[os.path.join(os.path.abspath(SPECPATH), "HubblePi\\capture")],
-             binaries=[],
-             datas=[] + Preset_files,
-             hiddenimports=[],
+             binaries=mkl_binaries,
+             datas=Preset_files,
+             hiddenimports=[
+                "scipy.spatial.transform._rotation_groups",
+             ],
              hookspath=[],
              runtime_hooks=[],
              excludes=[
@@ -40,14 +53,17 @@ Capture_exe = EXE(Capture_pyz,
           upx=True,
           console=True )
 
+shutil.copyfile("build\\HubblePi\\xref-HubblePi.html", "build\\HubblePi\\xref-HubblePi_Capture.html")
+
 ################################################
 ### HubblePi_Viewer		  
 
 Viewer_a = Analysis(['HubblePi\\viewer\\HubblePi_Viewer.py'],
 			 pathex=[os.path.join(os.path.abspath(SPECPATH), "HubblePi\\viewer")],
-             binaries=[],
+             binaries=mkl_binaries,
              datas=[],
              hiddenimports=[
+                "scipy.spatial.transform._rotation_groups",
              ],
              hookspath=[],
              runtime_hooks=[],
@@ -73,14 +89,17 @@ Viewer_exe = EXE(Viewer_pyz,
           upx=True,
           console=True )
 
+shutil.copyfile("build\\HubblePi\\xref-HubblePi.html", "build\\HubblePi\\xref-HubblePi_Viewer.html")
+
 ################################################
 ### HubblePi_RPi2Fits	  
 
 RPi2Fits_a = Analysis(['HubblePi\\tools\\RPi2Fits.py'],
 			 pathex=[os.path.join(os.path.abspath(SPECPATH), "HubblePi\\tools")],
-             binaries=[],
+             binaries=mkl_binaries,
              datas=[],
              hiddenimports=[
+                "scipy.spatial.transform._rotation_groups",
              ],
              hookspath=[],
              runtime_hooks=[],
@@ -105,6 +124,8 @@ RPi2Fits_exe = EXE(RPi2Fits_pyz,
           strip=False,
           upx=True,
           console=True )
+
+shutil.copyfile("build\\HubblePi\\xref-HubblePi.html", "build\\HubblePi\\xref-HubblePi_RPi2Fits.html")
 
 ################################################
 ### common

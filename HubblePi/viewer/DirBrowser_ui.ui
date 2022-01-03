@@ -104,7 +104,7 @@
   <customwidget>
    <class>DirBrowserTableView</class>
    <extends>QTableView</extends>
-   <header>DirBrowserTableView</header>
+   <header>HubblePi.viewer.DirBrowserTableView</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -32,7 +32,7 @@ pg.setConfigOptions(imageAxisOrder='row-major')
 
 ShowMenuBar = False # hide menu bar with item for automated dark noise measurement
 theme_selection = "Dark" # "Dark", "Light"
-PresetFolder = os.path.join(os.path.dirname(__file__), "presets") # TODO: move this in an AppData folder (or user home)
+PresetFolder = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "presets") # TODO: move presets in an AppData folder (or user home)
 
 #@staticmethod
 def My_qWait(t):
@@ -389,9 +389,9 @@ class MainWin(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def on_pushButton_Folder_clicked(self):
-        ImageFolder = pg.QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                                   "Folder to store images..",
-                                                                   self.SaveImagesFolder)
+        ImageFolder = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                                 "Folder to store images..",
+                                                                 self.SaveImagesFolder)
         if ImageFolder != '':
             self.SaveImagesFolder = ImageFolder
             self.PersistentSettings.setValue("ImageFolder", ImageFolder)

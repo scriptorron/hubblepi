@@ -21,10 +21,12 @@ setup(
     install_requires=[
         "numpy",
         "rawpy==0.17.0",
-        "PyQt5==5.15.4",
+        # We need PyQt5. But the conda package has a different name "pyqt". That makes the requirements
+        # incompatible between conda and pip installations.
+        #"PyQt5",
         "pillow",
-        "pyqtgraph==0.12.3",
-        "astropy==5.0",
+        "pyqtgraph",
+        "astropy",
         "colour-demosaicing==0.1.6",
         "pandas",
         "send2trash",
