@@ -1,0 +1,58 @@
+{
+  "name": "full control", 
+  "controls": [
+    {
+      "name": "sensor_mode"
+    }, 
+    {
+      "name": "exposuremode"
+    }, 
+    {
+      "name": "iso"
+    }, 
+    {
+      "name": "analog_gain"
+    }, 
+    {
+      "name": "shutter_speed_s",
+      "suffix": " s"
+    }, 
+    {
+      "name": "still_stats"
+    }, 
+    {
+      "name": "resolution"
+    }, 
+    {
+      "name": "framerate",
+      "suffix": " fps"
+    }, 
+    {
+      "name": "metermode"
+    }, 
+    {
+      "name": "AWB_mode"
+    }, 
+    {
+      "name": "AWB_gain_0"
+    }, 
+    {
+      "name": "AWB_gain_1"
+    }, 
+    {
+      "name": "exposure_compensation"
+    }, 
+    {
+      "name": "digital_gain"
+    }, 
+    {
+      "name": "imageeffects"
+    }, 
+    {
+      "name": "drc_strength"
+    }, 
+    {
+      "name": "image_denoise"
+    }
+  ]
+}

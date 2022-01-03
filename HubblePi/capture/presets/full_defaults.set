@@ -1,0 +1,75 @@
+{
+  "name": "camera defaults", 
+  "controls": [
+    { 
+      "name": "sensor_mode", 
+      "value": 0
+    }, 
+    {
+      "name": "exposuremode", 
+      "value": "auto"
+    }, 
+    { 
+      "name": "iso", 
+      "value": 0
+    }, 
+    { 
+      "name": "analog_gain", 
+      "value": 8.0
+    }, 
+    {
+      "name": "shutter_speed_s", 
+      "value": 0.0, 
+      "suffix": " s"
+    }, 
+    {
+      "name": "still_stats", 
+      "value": false
+    }, 
+    {
+      "name": "resolution", 
+      "value": "640x480"
+    }, 
+    {
+      "name": "framerate", 
+      "value": 15, 
+      "suffix": " fps"
+    }, 
+    { 
+      "name": "metermode", 
+      "value": "average"
+    }, 
+    { 
+      "name": "AWB_mode", 
+      "value": "auto"
+    }, 
+    {
+      "name": "AWB_gain_0", 
+      "value": 2.90625
+    }, 
+    {
+      "name": "AWB_gain_1", 
+      "value": 1.910156
+    }, 
+    {
+      "name": "exposure_compensation", 
+      "value": 0
+    }, 
+    {
+      "name": "digital_gain", 
+      "value": 1
+    }, 
+    {
+      "name": "imageeffects", 
+      "value": "none"
+    }, 
+    {
+      "name": "drc_strength", 
+      "value": "off"
+    }, 
+    {
+      "name": "image_denoise", 
+      "value": true
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "HQ: very low light", 
+  "controls": [
+    {
+      "name": "sensor_mode", 
+      "value": 3
+    }, 
+    {
+      "name": "exposuremode", 
+      "value": "off"
+    }, 
+    {
+      "name": "iso", 
+      "value": 0,
+      "visible": false
+    }, 
+    {
+      "name": "analog_gain", 
+      "value": 16.0
+    }, 
+    {
+      "name": "shutter_speed_s", 
+      "value": 0.1, 
+      "suffix": " s"
+    }, 
+    {
+      "name": "still_stats", 
+      "value": true
+    }, 
+    {
+      "name": "resolution", 
+      "value": "640x480"
+    }, 
+    {
+      "name": "AWB_mode", 
+      "value": "auto"
+    }, 
+    { 
+      "name": "exposure_compensation", 
+      "value": 0,
+      "visible": false
+    }, 
+    {
+      "name": "digital_gain", 
+      "value": 1
+    }, 
+    {
+      "name": "imageeffects", 
+      "value": "none",
+      "visible": false
+    }, 
+    {
+      "name": "drc_strength", 
+      "value": "off",
+      "visible": false
+    }, 
+    {
+      "name": "image_denoise", 
+      "value": false,
+      "visible": false
+    }
+  ]
+}
