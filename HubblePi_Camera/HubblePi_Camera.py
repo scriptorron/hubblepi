@@ -6,7 +6,7 @@ import sys
 import io
 import socketserver
 import struct
-import picamera
+
 import threading
 import copy
 import time
@@ -14,6 +14,57 @@ import time
 import logging
 
 import Statistics
+
+#################################################
+# PiCamera and its tweaks
+
+import picamera
+from picamera import mmal, mmalobj, exc
+from picamera.mmalobj import to_rational
+
+# needed to set the CAPTURE_TIMEOUT in the class definition before making an istance
+# (otherwise it would raise "AttributeError: 'PiCamera' object attribute 'CAPTURE_TIMEOUT' is read-only")
+picamera.PiCamera.CAPTURE_TIMEOUT = 400
+
+# this is stolen from https://gist.github.com/rwb27/a23808e9f4008b48de95692a38ddaa08
+MMAL_PARAMETER_ANALOG_GAIN = mmal.MMAL_PARAMETER_GROUP_CAMERA + 0x59
+MMAL_PARAMETER_DIGITAL_GAIN = mmal.MMAL_PARAMETER_GROUP_CAMERA + 0x5A
+
+
+def set_gain(camera, gain, value):
+    """Set the analog gain of a PiCamera.
+
+    camera: the picamera.PiCamera() instance you are configuring
+    gain: either MMAL_PARAMETER_ANALOG_GAIN or MMAL_PARAMETER_DIGITAL_GAIN
+    value: a numeric value that can be converted to a rational number.
+    """
+    if gain not in [MMAL_PARAMETER_ANALOG_GAIN, MMAL_PARAMETER_DIGITAL_GAIN]:
+        raise ValueError("The gain parameter was not valid")
+    ret = mmal.mmal_port_parameter_set_rational(
+        camera._camera.control._port,
+        gain,
+        to_rational(value)
+    )
+    if ret == 4:
+        raise exc.PiCameraMMALError(
+            ret,
+            "Are you running the latest version of the userland libraries? Gain setting was introduced in late 2017."
+        )
+    elif ret != 0:
+        raise exc.PiCameraMMALError(ret)
+
+
+def set_analog_gain(camera, value):
+    """Set the gain of a PiCamera object to a given value."""
+    set_gain(camera, MMAL_PARAMETER_ANALOG_GAIN, value)
+
+
+def set_digital_gain(camera, value):
+    """Set the digital gain of a PiCamera object to a given value."""
+    set_gain(camera, MMAL_PARAMETER_DIGITAL_GAIN, value)
+
+
+##############################################################
 
 MaxFrameRate = 15
 MaxDynFrameRate = MaxFrameRate
@@ -271,7 +322,7 @@ class CommandServerHandler(socketserver.BaseRequestHandler):
         elif Command == "get_analog_gain":
             return "%.3f" % Cam.PiCam.analog_gain
         elif Command.startswith("set_analog_gain "):
-            Cam.PiCam.analog_gain = float(Command[16:])
+            set_analog_gain(Cam.PiCam, float(Command[16:]))
             return "ok"
         # sensor_mode
         elif Command == "info_sensor_mode":
@@ -360,7 +411,7 @@ class CommandServerHandler(socketserver.BaseRequestHandler):
         elif Command == "get_digital_gain":
             return "%d" % Cam.PiCam.digital_gain
         elif Command.startswith("set_digital_gain "):
-            Cam.PiCam.digital_gain = float(Command[17:])
+            set_digital_gain(Cam.PiCam, float(Command[17:]))
             return "ok"
         # exposure compensation
         elif Command == "info_exposure_compensation":
