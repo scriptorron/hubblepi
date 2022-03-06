@@ -404,6 +404,11 @@ class MainWin(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def on_pushButton_StartRec_clicked(self):
+        if not os.path.exists(self.SaveImagesFolder):
+            self.on_pushButton_Folder_clicked()
+            if not os.path.exists(self.SaveImagesFolder):
+                # still no valid folder to save images
+                return
         self.AddLogMessage("Starting recording.", "INFO")
         self.ui.pushButton_StartRec.setEnabled(False)
         self.ui.pushButton_StartRec.setStyleSheet('background-color: red;')
