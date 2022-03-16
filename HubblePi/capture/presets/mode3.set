@@ -42,7 +42,7 @@
     }, 
     {
       "name": "digital_gain", 
-      "value": 1
+      "value": 5
     }, 
     {
       "name": "imageeffects", 
