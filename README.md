@@ -59,7 +59,7 @@ Do the following steps:
    conda env create -f environment.yml
    ```
    (Conda will ask if you want to proceed installation. Answer with "y".)
-3. Change to `HubblePi` environment (if not already done) with `conda ativate HubblePi`
+3. Change to `HubblePi` environment (if not already done) with `conda activate HubblePi`
    and install `HubblePi` library:
    ```
    pip install -e .
