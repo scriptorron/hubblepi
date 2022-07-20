@@ -105,6 +105,12 @@ class MainWin(QtWidgets.QMainWindow):
         # states
         self.PreviewImageStream = None
         self.PreviewImageInfo = None
+        # cross hair lines
+        self.CrossHairLines = None
+        # saturated pixel highlight
+        self.SaturatedPixelImage = pg.ImageItem()
+        self.SaturatedPixelImage.setZValue(65000)
+        self.ui.ImageView_Preview.addItem(self.SaturatedPixelImage)
         # timer for statistics
         self.StatTimers = {
             "onNewImage": ReportingTimer("time for showing and saving image"),
@@ -180,7 +186,8 @@ class MainWin(QtWidgets.QMainWindow):
         self.ui.checkBox_PreviewFlipH.toggled.connect(self.ShowPreview)
         self.ui.checkBox_PreviewFlipV.toggled.connect(self.ShowPreview)
         self.ui.comboBox_RawPreviewMode.currentIndexChanged.connect(self.ShowPreview)
-
+        self.ui.checkBox_CrossHair.toggled.connect(self.ShowPreview)
+        self.ui.checkBox_Saturation.toggled.connect(self.ShowPreview)
 
 
     @QtCore.pyqtSlot()
@@ -251,6 +258,7 @@ class MainWin(QtWidgets.QMainWindow):
     def GetTimeStamp(self):
         return datetime.datetime.now().strftime("%y%m%dT%H%M%S%f")[:-3]
 
+
     def ShowPreview(self):
         if self.PreviewImageStream is not None:
             self.PreviewImageStream.seek(0)
@@ -258,27 +266,29 @@ class MainWin(QtWidgets.QMainWindow):
                 # show RAW preview
                 img = self.PreviewImageStream.getvalue()
                 #logging.debug(f'RAW img: {len(img)} of {type(img)}')
-                img = HubblePi.Toolbox.ExtractRawFromJpgData(img, CameraType=self.PreviewImageInfo["CameraType"])
+                imgBayer = HubblePi.Toolbox.ExtractRawFromJpgData(img, CameraType=self.PreviewImageInfo["CameraType"])
                 BayerChannels = {
                     1: {"G1": (0, 0), "B": (0, 1), "R": (1, 0), "G2": (1, 1)},  # GBRG
                     2: {"G1": (0, 0), "B": (0, 1), "R": (1, 0), "G2": (1, 1)},  # GBRG
                     3: {"B": (0, 0), "G1": (0, 1), "G2": (1, 0), "R": (1, 1)},  # BGGR
                 }[self.PreviewImageInfo["CameraType"]]
+                imgR = imgBayer[BayerChannels["R"][0]::2, BayerChannels["R"][1]::2]
+                imgG1 = imgBayer[BayerChannels["G1"][0]::2, BayerChannels["G1"][1]::2]
+                imgG2 = imgBayer[BayerChannels["G2"][0]::2, BayerChannels["G2"][1]::2]
+                imgB = imgBayer[BayerChannels["B"][0]::2, BayerChannels["B"][1]::2]
                 RawPreviewMode = self.ui.comboBox_RawPreviewMode.currentText()
                 # logging.debug(f'RawPreviewMode: {RawPreviewMode} ({type(RawPreviewMode)})')
                 #logging.debug(f'JPG img: {img.shape} of {img.dtype}')
-                if RawPreviewMode == "gray":
-                    img = img[0::2, :] + img[1::2, :]
-                    img = img[:, 0::2] + img[:, 1::2]
-                    img = img // 4
+                if RawPreviewMode == "luminance":
+                    img = (0.2126 * imgR + 0.7152 * (imgG1 + imgG2) / 2 + 0.0722 * imgB + 0.5).astype(int)
                 elif RawPreviewMode == "red":
-                    img = img[BayerChannels["R"][0]::2, BayerChannels["R"][1]::2]
+                    img = imgR
                 elif RawPreviewMode == "green 1":
-                    img = img[BayerChannels["G1"][0]::2, BayerChannels["G1"][1]::2]
+                    img = imgG1
                 elif RawPreviewMode == "green 2":
-                    img = img[BayerChannels["G2"][0]::2, BayerChannels["G2"][1]::2]
+                    img = imgG2
                 elif RawPreviewMode == "blue":
-                    img = img[BayerChannels["B"][0]::2, BayerChannels["B"][1]::2]
+                    img = imgB
                 else:
                     raise NotImplementedError
             else:
@@ -300,6 +310,37 @@ class MainWin(QtWidgets.QMainWindow):
                                                #levelMode="rgb",
                                                autoRange=False,
                                                )
+            # cross hair lines
+            if self.ui.checkBox_CrossHair.isChecked():
+                if self.CrossHairLines is None:
+                    ilh = pg.InfiniteLine(pos=img.shape[0] / 2, angle=0, pen=pg.mkPen((255, 0, 0, 200)))
+                    ilv = pg.InfiniteLine(pos=img.shape[1] / 2, angle=90, pen=pg.mkPen((255, 0, 0, 200)))
+                    self.CrossHairLines = (ilh, ilv)
+                    self.ui.ImageView_Preview.addItem(self.CrossHairLines[0])
+                    self.ui.ImageView_Preview.addItem(self.CrossHairLines[1])
+            else:
+                if self.CrossHairLines is not None:
+                    self.ui.ImageView_Preview.removeItem(self.CrossHairLines[0])
+                    self.ui.ImageView_Preview.removeItem(self.CrossHairLines[1])
+                    self.CrossHairLines = None
+            # highlight saturated pixel
+            if (
+                    self.ui.checkBox_Saturation.isChecked()
+                    and self.ui.checkBox_RawPreview.isChecked()
+                    and (self.PreviewImageInfo["CaptureType"] == 'C')
+            ):
+                sat = np.zeros((img.shape[0], img.shape[1], 4), dtype=int)
+                sat[:, :, 0] = 1  # pure red, full transparent
+                satLim = {
+                    1: 2 ** 10,
+                    2: 2 ** 10,
+                    3: 2 ** 12,
+                }[self.PreviewImageInfo["CameraType"]] * 0.95
+                is_sat = (imgR > satLim) | (imgG1 > satLim) | (imgG2 > satLim) | (imgB > satLim)
+                sat[:, :, 3] = is_sat * 1  # saturated pixel get intransparent red
+                self.SaturatedPixelImage.setImage(sat, levels=[[0, 1], [0, 1], [0, 1], [0, 1]])
+            else:
+                self.SaturatedPixelImage.clear()
 
 
     @QtCore.pyqtSlot(dict)
@@ -436,6 +477,7 @@ class MainWin(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(bool)
     def on_checkBox_RawPreview_toggled(self, checked):
+        self.ui.checkBox_Saturation.setEnabled(checked)
         if not self.isRecording:
             if checked:
                 self.CameraCommand("raw_on")
