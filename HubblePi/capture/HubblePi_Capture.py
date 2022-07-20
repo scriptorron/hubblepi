@@ -258,6 +258,7 @@ class MainWin(QtWidgets.QMainWindow):
     def GetTimeStamp(self):
         return datetime.datetime.now().strftime("%y%m%dT%H%M%S%f")[:-3]
 
+
     def ShowPreview(self):
         if self.PreviewImageStream is not None:
             self.PreviewImageStream.seek(0)
@@ -272,9 +273,9 @@ class MainWin(QtWidgets.QMainWindow):
                     3: {"B": (0, 0), "G1": (0, 1), "G2": (1, 0), "R": (1, 1)},  # BGGR
                 }[self.PreviewImageInfo["CameraType"]]
                 imgR = imgBayer[BayerChannels["R"][0]::2, BayerChannels["R"][1]::2]
-                imgG1 = img[BayerChannels["G1"][0]::2, BayerChannels["G1"][1]::2]
-                imgG2 = img[BayerChannels["G2"][0]::2, BayerChannels["G2"][1]::2]
-                imgB = img[BayerChannels["B"][0]::2, BayerChannels["B"][1]::2]
+                imgG1 = imgBayer[BayerChannels["G1"][0]::2, BayerChannels["G1"][1]::2]
+                imgG2 = imgBayer[BayerChannels["G2"][0]::2, BayerChannels["G2"][1]::2]
+                imgB = imgBayer[BayerChannels["B"][0]::2, BayerChannels["B"][1]::2]
                 RawPreviewMode = self.ui.comboBox_RawPreviewMode.currentText()
                 # logging.debug(f'RawPreviewMode: {RawPreviewMode} ({type(RawPreviewMode)})')
                 #logging.debug(f'JPG img: {img.shape} of {img.dtype}')
@@ -312,11 +313,11 @@ class MainWin(QtWidgets.QMainWindow):
             # cross hair lines
             if self.ui.checkBox_CrossHair.isChecked():
                 if self.CrossHairLines is None:
-                    ilh = pg.InfiniteLine(pos=img.shape[1] / 2, angle=0, pen=pg.mkPen((255, 0, 0, 200)))
-                    ilv = pg.InfiniteLine(pos=img.shape[0] / 2, angle=90, pen=pg.mkPen((255, 0, 0, 200)))
+                    ilh = pg.InfiniteLine(pos=img.shape[0] / 2, angle=0, pen=pg.mkPen((255, 0, 0, 200)))
+                    ilv = pg.InfiniteLine(pos=img.shape[1] / 2, angle=90, pen=pg.mkPen((255, 0, 0, 200)))
                     self.CrossHairLines = (ilh, ilv)
                     self.ui.ImageView_Preview.addItem(self.CrossHairLines[0])
-                    self.ui.ImageView_Preview.addItem(self.CrossHairLines[0])
+                    self.ui.ImageView_Preview.addItem(self.CrossHairLines[1])
             else:
                 if self.CrossHairLines is not None:
                     self.ui.ImageView_Preview.removeItem(self.CrossHairLines[0])
@@ -476,6 +477,7 @@ class MainWin(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(bool)
     def on_checkBox_RawPreview_toggled(self, checked):
+        self.ui.checkBox_Saturation.setEnabled(checked)
         if not self.isRecording:
             if checked:
                 self.CameraCommand("raw_on")
