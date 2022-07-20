@@ -32,7 +32,9 @@ performance (higher sensitivity, lower noise, larger dynamic range, longer expos
    sudo raspi-config
    goto "Interface Options" and enable "Legacy Camera", reboot
 2. install `python3`, `python3-numpy` and `python3-pip` on your Raspberry Pi:
+   ```
    sudo apt-get install python3 python3-numpy python3-pip
+   ```
 3. copy folder `HubblePi_Camera` to your raspberry Pi
 4. install required Python libraries on your Raspberry Pi: 
    ```
@@ -81,5 +83,5 @@ python3 HubblePi_Camera.py -v debug
 2. Start `HubblePi_Capture` on your client computer, connect to your Raspberry Pi (you will need its network name
    for that), adjust camera settings and take pictures.
    
-Please see Wiki (TODO) for further documentation.
+Please see Wiki for further documentation.
 
